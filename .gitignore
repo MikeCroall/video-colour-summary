@@ -143,4 +143,5 @@ $RECYCLE.BIN/
 
 # Additional test material
 video/countdown.mp4
-output/countdown.mp4.png
+output/countdown.png
+merge/countdown R154 G154 B154.png
