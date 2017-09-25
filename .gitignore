@@ -140,3 +140,7 @@ $RECYCLE.BIN/
 
 # PyCharm configs
 .idea/
+
+# Additional test material
+video/countdown.mp4
+output/countdown.mp4.jpg
