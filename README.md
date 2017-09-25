@@ -17,5 +17,8 @@ Tested with
 4. Any saved images will be in the `output` folder, having been announced in the console at the time of saving
 5. Press `x`, as the menu states, to exit the script cleanly
 
-### Thanks
+#### Please Note
+Generated files are named relative to the input file - to avoid files being overwritten, ensure every input file is named uniquely
+
+#### Thanks
 Big Buck Bunny Test Video Courtesy of https://peach.blender.org/
