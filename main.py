@@ -20,7 +20,7 @@ except ImportError:
 
 
 def print_pre_video_commands():
-    print("\nCommands")
+    print("\nCommands (followed by enter to confirm)")
     print("\tv - load video file")
     print("\ti - load previously outputted image file")
     print("\tx - cancel")
@@ -28,11 +28,11 @@ def print_pre_video_commands():
 
 
 def print_video_processed_commands():
-    print("\nCommands")
+    print("\nCommands (on window, not in console this time)")
     print("\tm - merge all to single colour")
     print("\ts - select area to merge to single colour")
     print("\tx - quit")
-    print("\n")
+    print("\nPress your chosen key on the image window\n")
 
 
 def load_video(file):
@@ -43,9 +43,9 @@ def load_video(file):
         return None
     else:
         print("Video opened")
-        output_file = "output/{}.jpg".format(file)  # TODO output to PNG to avoid compression?
+        output_file = "output/{}.png".format(file)
         keep_going, frame = vc.read()
-        frame_count = 0
+        frame_count = 1
         rows, columns, channels = frame.shape
         total_pixels_in_frame = rows * columns
         total_frames = int(vc.get(cv2.CAP_PROP_FRAME_COUNT))
@@ -57,10 +57,12 @@ def load_video(file):
         print("{} rows, {} columns, {} colour channels".format(rows, columns, channels))
         print("Reported frames: {}".format(total_frames))
 
-        output_image = np.zeros((int(total_frames / 10), total_frames, 3), np.uint8)
-        print("\rProgress: {}/{}".format(frame_count, total_frames), end="")
+        output_image = np.zeros((min(int(total_frames / 10), 200), total_frames, 3), np.uint8)
 
         while keep_going:
+            print(
+                "\rProgress: {}/{} ({}%)".format(frame_count, total_frames, round(100 * frame_count / total_frames, 1)),
+                end="")  # TODO is time elapsed worth including?
             r, g, b = 0, 0, 0
             for y in range(rows):
                 for x in range(columns):
@@ -75,19 +77,19 @@ def load_video(file):
             g = round(g)
             b = round(b)
 
-            output_image[:, frame_count] = (b, g, r)  # BGR, not RGB, because OpenCV
+            output_image[:, frame_count - 1] = (b, g, r)  # BGR, not RGB, because OpenCV
 
             keep_going, frame = vc.read()
             frame_count += 1
-            print("\rProgress: {}/{}".format(frame_count, total_frames), end="")
 
         vc.release()
-        print()  # To stop the Progress one line overwriting from being overwritten
+        print()  # To prevent the Progress one line overwriting from being overwritten
+        frame_count -= 1  # Account for final increment (could put it in an if keep_going: but that's slower than this)
 
-        # frame_count was incremented regardless of keep_going, so check frame_count - 1
-        if frame_count - 1 < total_frames:
-            print("Stopped at frame {}, cropping...".format(frame_count - 1))
-            output_image = output_image[:, :frame_count - 1]
+        if frame_count < total_frames:
+            print("Stopped at frame {}, cropping...".format(frame_count))
+            output_image = output_image[:, :frame_count]  # Frame 1 at index 0, frame_count is 1 more than last index
+            # (and the above splice is exclusive of the end index)
 
         print("Saving output to {}".format(output_file))
         cv2.imwrite(output_file, output_image)
