@@ -13,7 +13,7 @@ Tested with
 ### Getting Started
 1. Place your video file in the `video` folder
 2. Run `main.py`, and follow the printed menu system in the console
-3. While processing, be patient - **it isn't very fast!** (It only looks at *every single pixel* of *every single frame*)
+3. While processing, be patient - **it may take some time** (Numpy averaging is quick, but we still look at *every single pixel* of *every single frame*)
 4. Any saved images will be in the `output` folder, having been announced in the console at the time of saving
 5. Press `x`, as the menu states, to exit the script cleanly
 

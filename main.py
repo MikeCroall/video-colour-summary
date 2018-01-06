@@ -1,6 +1,6 @@
 # Tested on Windows 10 using Python 3.6.0, with Numpy 1.13.1, and OpenCV 3.3.0
 
-import sys, os  # Shouldn't fail, who runs python scripts on a non-existent system?
+import sys, os, time  # Shouldn't fail, who runs python scripts on a non-existent system?
 
 try:
     import numpy as np
@@ -66,21 +66,14 @@ def load_video(file):
         print("Reported frames: {}".format(total_frames))
 
         output_image = np.zeros((min(int(total_frames / 10), 200), total_frames, 3), np.uint8)
+        start_time = time.time()
 
         while keep_going:
-            print(
-                "\rProgress: {}/{} ({}%)".format(frame_count, total_frames, round(100 * frame_count / total_frames, 1)),
-                end="")  # TODO is time elapsed worth including?
-            r, g, b = 0, 0, 0
-            for y in range(rows):
-                for x in range(columns):
-                    r += frame[y, x, 2]
-                    g += frame[y, x, 1]
-                    b += frame[y, x, 0]
+            print("\rProgress: {}/{} ({}%) Time elapsed: {} seconds".format(
+                frame_count, total_frames, round(100 * frame_count / total_frames, 1), round(time.time() - start_time, 1)),
+                end="")
 
-            r /= total_pixels_in_frame
-            g /= total_pixels_in_frame
-            b /= total_pixels_in_frame
+            r, g, b = average_frame(frame)
             r = int(round(r))
             g = int(round(g))
             b = int(round(b))
@@ -106,7 +99,7 @@ def load_video(file):
 
 
 def merge_image(img, file_name):
-    print("Assuming image is output of this program, and therefore only the first row of pixels will be merged")
+    print("All pixels will be merged - although if output of this program only one row is needed")
     r, g, b = 0, 0, 0
     rows, columns, channels = img.shape
 
@@ -116,14 +109,7 @@ def merge_image(img, file_name):
         print("Image doesn't have exactly 3 colour channels, unexpected format, exiting...")
         sys.exit(1)
 
-    for x in range(columns):
-        r += img[0, x, 2]
-        g += img[0, x, 1]
-        b += img[0, x, 0]
-
-    r /= columns
-    g /= columns
-    b /= columns
+    r, g, b = average_frame(img)
     r = int(round(r))
     g = int(round(g))
     b = int(round(b))
@@ -137,6 +123,13 @@ def merge_image(img, file_name):
 
     cv2.imshow(output_file, output_image)
 
+
+def average_frame(img):
+    # img must be a numpy.array for the following code, which it always is in this script
+    r = img[:, :, 2].mean()
+    g = img[:, :, 1].mean()
+    b = img[:, :, 0].mean()
+    return r, g, b
 
 def main():
     working_title = "no-file"
